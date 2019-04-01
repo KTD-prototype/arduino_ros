@@ -63,10 +63,12 @@
 #include "ros/node_handle.h"
 #include "ArduinoHardware.h"
 
-typedef ros::NodeHandle_<ArduinoHardware, 10, 15, 128, 256> NodeHandle;
+typedef ros::NodeHandle_<ArduinoHardware, 10, 15, 128, 256> nh;
 
 sensor_msgs::Imu imu;
 sensor_msgs::MagneticField mag_field;
+ros::Publisher pubimu("imu/data_raw", &imu);
+ros::Publisher pubmag("imu/mag_field", &mag_field);
 
 
 //////////////////////////
@@ -148,6 +150,11 @@ void setup()
   init_gyro_process();
   Serial.println("finished initialization !");
   Serial.println();
+
+  nh.getHardware()->setBaud(115200);
+  nh.initNode();
+  nh.advertise(pubimu);
+  nh.advertise(pubmag);
 
   Timer1.initialize(1000000 / SAMPLING_RATE); //interrupt per 10000 micro seconds(10 msec)
   Timer1.attachInterrupt(interrupt_function);
