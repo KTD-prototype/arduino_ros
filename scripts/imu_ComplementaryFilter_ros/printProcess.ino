@@ -1,11 +1,9 @@
-
 void print_time() {
   present_time = micros();
   passed_time = present_time - previous_time;
   Serial.println(passed_time);
   previous_time = present_time;
 }
-
 
 void print_posture() {
   Serial.print(pitch);
@@ -31,5 +29,5 @@ void print_gyro() {
   Serial.print(",");
   Serial.print(gyroY);
   Serial.print(",");
-  Serial.println(gyroZ);
+  Serial.println(gyroZ, 4);
 }

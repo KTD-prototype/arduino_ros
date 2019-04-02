@@ -54,7 +54,6 @@
 // included BEFORE including the 9DS1 library.
 #include <Wire.h>
 #include <SPI.h>
-#include <MadgwickAHRS.h>
 #include <SparkFunLSM9DS1.h>
 #include <TimerOne.h>
 #include <ros.h>
@@ -75,7 +74,6 @@ ros::Publisher pubmag("imu/mag_field", &mag_field);
 //////////////////////////
 // Use the LSM9DS1 class to create an object. [imu] can be
 // named anything, we'll refer to that throught the sketch.
-Madgwick filter;
 LSM9DS1 imu_LSM9DS1;
 
 ///////////////////////
@@ -117,7 +115,7 @@ void setup()
 {
 
   Serial.begin(115200);
-  filter.begin(SAMPLING_RATE);
+
   // Before initializing the IMU, there are a few settings
   // we may need to adjust. Use the settings struct to set
   // the device's communication mode and addresses:
@@ -131,7 +129,7 @@ void setup()
   setupMag();
 
   // The above lines will only take effect AFTER calling
-  // imu.begin(), which verifies communication with the IMU
+  // imu_LSM9DS1.begin(), which verifies communication with the IMU
   // and turns it on.
   if (!imu_LSM9DS1.begin())
   {
@@ -150,11 +148,6 @@ void setup()
   Serial.println("finished initialization !");
   Serial.println();
 
-  nh.getHardware()->setBaud(115200);
-  nh.initNode();
-  nh.advertise(pubimu);
-  nh.advertise(pubmag);
-
   Timer1.initialize(1000000 / SAMPLING_RATE); //interrupt per 10000 micro seconds(10 msec)
   Timer1.attachInterrupt(interrupt_function);
 }
@@ -163,10 +156,9 @@ void loop() {
   if (interrupt_flag == 1) {
     get_IMU_data();
     //    normarize_gyroZ();
-    //    get_posture_complementary_filter();
-    get_posture_madgwick_filter();
-    //    print_posture();
-    print_gyro();
+    get_posture_complementary_filter();
+    print_posture();
+    //    print_gyro();
     //    print_accel();
     //    print_time();
     interrupt_flag = 0;
